@@ -9,6 +9,7 @@ export default function Home() {
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -27,6 +28,17 @@ export default function Home() {
     const file = e.target.files?.[0] || null;
     setSelectedImage(file);
     setUploadStatus(null);
+    
+    // Create a preview URL for the selected image
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+      
+      // Clean up the object URL when it's no longer needed
+      return () => URL.revokeObjectURL(objectUrl);
+    } else {
+      setPreviewUrl(null);
+    }
   };
 
   const handleUpload = async (e: React.FormEvent) => {
@@ -54,6 +66,7 @@ export default function Home() {
       if (response.ok) {
         setUploadStatus(`Upload successful! File name: ${data.fileName}`);
         setSelectedImage(null);
+        setPreviewUrl(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -100,6 +113,25 @@ export default function Home() {
                 disabled={isUploading}
               />
             </div>
+            
+            {/* Image Preview */}
+            {previewUrl && (
+              <div className="mt-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
+                <div className="relative h-48 w-full border border-gray-200 rounded-md overflow-hidden">
+                  <Image
+                    src={previewUrl}
+                    alt="Image preview"
+                    fill
+                    style={{ objectFit: 'contain' }}
+                    unoptimized
+                  />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  {selectedImage?.name} ({selectedImage ? (selectedImage.size / 1024).toFixed(2) : 0} KB)
+                </p>
+              </div>
+            )}
             
             <button
               type="submit"
