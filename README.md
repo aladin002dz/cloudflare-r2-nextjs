@@ -27,6 +27,7 @@ _Image upload interface and display from Cloudflare R2 bucket_
 
 - **Framework**: Next.js 15.2.3
 - **Storage**: Cloudflare R2
+- **AWS SDK**: @aws-sdk/client-s3 (for S3-compatible API interactions with Cloudflare R2)
 
 ## Setting up Cloudflare R2
 
