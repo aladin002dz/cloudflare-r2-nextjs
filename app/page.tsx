@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -15,10 +15,10 @@ export default function Home() {
   useEffect(() => {
     // Set isLoading to true when component mounts
     setIsLoading(true);
-    
+
     // Create URL for the API endpoint
-    const apiUrl = `/api/r2-image?image=cld-sample-3.jpg`;
-    
+    const apiUrl = `/api/r2-image?image=1743017680938-image2.png`;
+
     // Set the image URL
     setImageUrl(apiUrl);
     setIsLoading(false);
@@ -28,12 +28,12 @@ export default function Home() {
     const file = e.target.files?.[0] || null;
     setSelectedImage(file);
     setUploadStatus(null);
-    
+
     // Create a preview URL for the selected image
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
-      
+
       // Clean up the object URL when it's no longer needed
       return () => URL.revokeObjectURL(objectUrl);
     } else {
@@ -43,7 +43,7 @@ export default function Home() {
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedImage) {
       setUploadStatus("Please select an image to upload");
       return;
@@ -52,17 +52,17 @@ export default function Home() {
     try {
       setIsUploading(true);
       setUploadStatus("Uploading...");
-      
+
       const formData = new FormData();
       formData.append("file", selectedImage);
-      
+
       const response = await fetch("/api/upload-image", {
         method: "POST",
         body: formData,
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         setUploadStatus(`Upload successful! File name: ${data.fileName}`);
         setSelectedImage(null);
@@ -70,7 +70,7 @@ export default function Home() {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        
+
         // Display the newly uploaded image
         setImageUrl(`/api/r2-image?image=${data.fileName}`);
       } else {
@@ -88,11 +88,11 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold">Cloudflare R2 Image Display</h1>
-        
+
         {/* Image Upload Section */}
         <div className="w-full max-w-2xl border border-gray-200 rounded-lg p-4 bg-white shadow-md mb-6">
           <h2 className="text-xl mb-4">Upload Image to R2 Bucket</h2>
-          
+
           <form onSubmit={handleUpload} className="space-y-4">
             <div className="flex flex-col space-y-2">
               <label htmlFor="image-upload" className="text-sm font-medium text-gray-700">
@@ -113,7 +113,7 @@ export default function Home() {
                 disabled={isUploading}
               />
             </div>
-            
+
             {/* Image Preview */}
             {previewUrl && (
               <div className="mt-4">
@@ -132,7 +132,7 @@ export default function Home() {
                 </p>
               </div>
             )}
-            
+
             <button
               type="submit"
               disabled={isUploading || !selectedImage}
@@ -140,7 +140,7 @@ export default function Home() {
             >
               {isUploading ? "Uploading..." : "Upload Image"}
             </button>
-            
+
             {uploadStatus && (
               <div className={`mt-2 text-sm ${uploadStatus.includes("failed") ? "text-red-500" : "text-green-500"}`}>
                 {uploadStatus}
@@ -148,11 +148,11 @@ export default function Home() {
             )}
           </form>
         </div>
-        
+
         {/* R2 Image Display Section */}
         <div className="w-full max-w-2xl border border-gray-200 rounded-lg p-4 bg-white shadow-md">
           <h2 className="text-xl mb-4">Image from R2 Bucket</h2>
-          
+
           {isLoading ? (
             <div className="flex justify-center items-center h-64 bg-gray-100">
               <p>Loading image...</p>
@@ -178,7 +178,7 @@ export default function Home() {
               )}
             </div>
           )}
-          
+
           <p className="mt-4 text-sm text-gray-600">
             {imageUrl && `Image: ${imageUrl.split('=')[1] || 'cld-sample-3.jpg'}`}
           </p>

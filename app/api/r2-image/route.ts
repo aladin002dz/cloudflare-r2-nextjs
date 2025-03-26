@@ -1,5 +1,5 @@
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { NextRequest, NextResponse } from 'next/server';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     // Get the image name from the query params or use default
     const url = new URL(request.url);
-    const imageName = url.searchParams.get('image') || 'cld-sample-3.jpg';
+    const imageName = url.searchParams.get('image') || '1743017680938-image2.png';
 
     // Create a command to get the object from the bucket
     const command = new GetObjectCommand({
