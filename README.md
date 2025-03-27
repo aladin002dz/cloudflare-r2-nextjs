@@ -48,10 +48,10 @@ _Image upload interface and display from Cloudflare R2 bucket_
 Create a `.env` file with the following variables:
 
 ```env
-NEXT_PUBLIC_CLOUDFLARE_R2_ACCESS_KEY_ID=your_access_key_id_here
-NEXT_PUBLIC_CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_secret_access_key_here
-NEXT_PUBLIC_CLOUDFLARE_R2_ENDPOINT=your_r2_endpoint_url_here
-NEXT_PUBLIC_CLOUDFLARE_R2_BUCKET_NAME=your_bucket_name_here
+CLOUDFLARE_R2_ACCESS_KEY_ID=your_access_key_id_here
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_secret_access_key_here
+CLOUDFLARE_R2_ENDPOINT=your_r2_endpoint_url_here
+CLOUDFLARE_R2_BUCKET_NAME=your_bucket_name_here
 ```
 
 ## Getting Started
