@@ -1,6 +1,6 @@
 # Display Cloudflare R2 Image
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.2.3-black?logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.0.0-blue?logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
@@ -25,7 +25,7 @@ _Image upload interface and display from Cloudflare R2 bucket_
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.2.3
+- **Framework**: Next.js 15.2.4
 - **Storage**: Cloudflare R2
 - **AWS SDK**: @aws-sdk/client-s3 (for S3-compatible API interactions with Cloudflare R2)
 
