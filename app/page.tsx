@@ -13,15 +13,28 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Set isLoading to true when component mounts
-    setIsLoading(true);
+    const fetchInitialImage = async () => {
+      setIsLoading(true);
+      setError(null); // Reset error state
+      try {
+        // Fetch the presigned URL from the API endpoint
+        const response = await fetch(`/api/r2-image?image=image2.png`);
+        const data = await response.json();
 
-    // Create URL for the API endpoint
-    const apiUrl = `/api/r2-image?image=1743017680938-image2.png`;
+        if (response.ok) {
+          setImageUrl(data.url); // Set state with the presigned URL from the response
+        } else {
+          setError(`Failed to load initial image: ${data.error || 'Unknown error'}`);
+        }
+      } catch (err) {
+        console.error("Error fetching initial image URL:", err);
+        setError("Could not fetch image URL. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    // Set the image URL
-    setImageUrl(apiUrl);
-    setIsLoading(false);
+    fetchInitialImage();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,36 +62,69 @@ export default function Home() {
       return;
     }
 
+    setIsUploading(true);
+    setUploadStatus("Getting upload URL...");
+
     try {
-      setIsUploading(true);
-      setUploadStatus("Uploading...");
-
-      const formData = new FormData();
-      formData.append("file", selectedImage);
-
-      const response = await fetch("/api/upload-image", {
+      // 1. Get the presigned URL from our API route
+      const apiEndpoint = `/api/upload-image?filename=${encodeURIComponent(selectedImage.name)}&filetype=${encodeURIComponent(selectedImage.type)}`;
+      const response = await fetch(apiEndpoint, {
         method: "POST",
-        body: formData,
+        // No body needed for this request now
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        setUploadStatus(`Upload successful! File name: ${data.fileName}`);
+      if (!response.ok) {
+        setUploadStatus(`Failed to get upload URL: ${data.error}`);
+        throw new Error(data.error || 'Failed to get presigned URL');
+      }
+
+      const { url: presignedUrl, fileName } = data;
+      setUploadStatus("Uploading image...");
+
+      // 2. Upload the file directly to R2 using the presigned URL
+      const uploadResponse = await fetch(presignedUrl, {
+        method: "PUT",
+        body: selectedImage,
+        headers: {
+          'Content-Type': selectedImage.type, // Must match the ContentType used to generate the presigned URL
+        },
+      });
+
+      if (uploadResponse.ok) {
+        setUploadStatus(`Upload successful! File name: ${fileName}`);
         setSelectedImage(null);
         setPreviewUrl(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
 
-        // Display the newly uploaded image
-        setImageUrl(`/api/r2-image?image=${data.fileName}`);
+        // Fetch the presigned URL for the newly uploaded image to display it
+        try {
+          const getImageResponse = await fetch(`/api/r2-image?image=${encodeURIComponent(fileName)}`);
+          const getImageData = await getImageResponse.json();
+          if (getImageResponse.ok) {
+            setImageUrl(getImageData.url); // Use the presigned URL from the GET response
+          } else {
+            setError(`Failed to load uploaded image: ${getImageData.error}`);
+          }
+        } catch (fetchError) {
+          console.error("Error fetching presigned URL for display:", fetchError);
+          setError("Error displaying uploaded image.");
+        }
+
       } else {
-        setUploadStatus(`Upload failed: ${data.error}`);
+        setUploadStatus(`Upload failed: ${uploadResponse.statusText}`);
+        console.error('Upload to R2 failed:', uploadResponse.status, uploadResponse.statusText);
       }
-    } catch (err) {
-      setUploadStatus("Upload failed. Please try again.");
-      console.error("Error uploading image:", err);
+    } catch (err: unknown) {
+      let errorMessage = 'Please try again.';
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setUploadStatus(`Upload failed: ${errorMessage}`);
+      console.error("Error during upload process:", err);
     } finally {
       setIsUploading(false);
     }
