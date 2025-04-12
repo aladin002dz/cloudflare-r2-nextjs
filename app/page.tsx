@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { getR2ImageUrl } from "./actions/r2-image";
+import { getUploadUrl } from "./actions/upload-image";
 
 export default function Home() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -17,15 +19,9 @@ export default function Home() {
       setIsLoading(true);
       setError(null); // Reset error state
       try {
-        // Fetch the presigned URL from the API endpoint
-        const response = await fetch(`/api/r2-image?image=image2.png`);
-        const data = await response.json();
-
-        if (response.ok) {
-          setImageUrl(data.url); // Set state with the presigned URL from the response
-        } else {
-          setError(`Failed to load initial image: ${data.error || 'Unknown error'}`);
-        }
+        // Use the server action instead of the API route
+        const data = await getR2ImageUrl('image2.png');
+        setImageUrl(data.url); // Set state with the presigned URL from the response
       } catch (err) {
         console.error("Error fetching initial image URL:", err);
         setError("Could not fetch image URL. Please try again later.");
@@ -66,20 +62,8 @@ export default function Home() {
     setUploadStatus("Getting upload URL...");
 
     try {
-      // 1. Get the presigned URL from our API route
-      const apiEndpoint = `/api/upload-image?filename=${encodeURIComponent(selectedImage.name)}&filetype=${encodeURIComponent(selectedImage.type)}`;
-      const response = await fetch(apiEndpoint, {
-        method: "POST",
-        // No body needed for this request now
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setUploadStatus(`Failed to get upload URL: ${data.error}`);
-        throw new Error(data.error || 'Failed to get presigned URL');
-      }
-
+      // 1. Get the presigned URL from our server action
+      const data = await getUploadUrl(selectedImage.name, selectedImage.type);
       const { url: presignedUrl, fileName } = data;
       setUploadStatus("Uploading image...");
 
@@ -102,13 +86,8 @@ export default function Home() {
 
         // Fetch the presigned URL for the newly uploaded image to display it
         try {
-          const getImageResponse = await fetch(`/api/r2-image?image=${encodeURIComponent(fileName)}`);
-          const getImageData = await getImageResponse.json();
-          if (getImageResponse.ok) {
-            setImageUrl(getImageData.url); // Use the presigned URL from the GET response
-          } else {
-            setError(`Failed to load uploaded image: ${getImageData.error}`);
-          }
+          const getImageData = await getR2ImageUrl(fileName);
+          setImageUrl(getImageData.url); // Use the presigned URL from the server action
         } catch (fetchError) {
           console.error("Error fetching presigned URL for display:", fetchError);
           setError("Error displaying uploaded image.");
