@@ -1,8 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { getR2ImageUrl } from "./actions/r2-image";
-import { getUploadUrl } from "./actions/upload-image";
+import { getR2ImageUrl, getUploadUrl } from "./actions";
 
 export default function Home() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
