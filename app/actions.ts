@@ -3,19 +3,19 @@
 import { GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
+// Create a single S3Client instance that can be reused
+const s3Client = new S3Client({
+    region: 'auto',
+    endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
+    credentials: {
+        accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
+    },
+});
+
 // Function to get a presigned URL for viewing an image
 export async function getR2ImageUrl(imageName: string = 'image2.png') {
     try {
-        // Initialize the S3 client with Cloudflare R2 credentials
-        const s3Client = new S3Client({
-            region: 'auto',
-            endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
-            credentials: {
-                accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
-                secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
-            },
-        });
-
         // Create a command to get the object from the bucket
         const command = new GetObjectCommand({
             Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME!,
@@ -40,16 +40,6 @@ export async function getR2ImageUrl(imageName: string = 'image2.png') {
 // Function to get a presigned URL for uploading an image
 export async function getUploadUrl(filename: string, filetype: string) {
     try {
-        // Initialize the S3 client with Cloudflare R2 credentials
-        const s3Client = new S3Client({
-            region: 'auto',
-            endpoint: process.env.CLOUDFLARE_R2_ENDPOINT,
-            credentials: {
-                accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID!,
-                secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY!,
-            },
-        });
-
         // Create a command to put the object in the bucket
         const command = new PutObjectCommand({
             Bucket: process.env.CLOUDFLARE_R2_BUCKET_NAME!,
